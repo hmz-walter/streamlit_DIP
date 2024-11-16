@@ -1,1 +1,1 @@
-opencv-pythonrembgpillownumpySpeechRecognitionpyaudio
+streamlitopencv-pythonpillownumpyspeechrecognitionpyaudio==0.2.11rembg
