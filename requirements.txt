@@ -1,1 +1,1 @@
-streamlitopencv-contrib-python-headlesspillownumpyspeechrecognitionrembg
+streamlitstreamlit-image-coordinatesopencv-python-headlesspillownumpymatplotlibrembg
