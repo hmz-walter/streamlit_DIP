@@ -14,7 +14,6 @@ def advanced_control(image_controller):
 
 def edge_detection_control(image_controller):
     """控制边缘检测功能的界面，如Canny、Sobel、Laplacian。"""
-    # st.sidebar.subheader("边缘检测")
     if st.sidebar.checkbox("边缘检测"):
         method = st.sidebar.selectbox("选择边缘检测方法", ["Canny", "Sobel", "Laplacian"])
 
@@ -22,33 +21,52 @@ def edge_detection_control(image_controller):
             threshold1 = st.sidebar.slider("Threshold1", 0, 500, 100, 1)
             threshold2 = st.sidebar.slider("Threshold2", 0, 500, 200, 1)
             if st.sidebar.button("应用Canny边缘检测"):
-                image_controller.apply_operation(edge_detection, method="canny", threshold1=threshold1, threshold2=threshold2)
+                image_controller.apply_operation(
+                    edge_detection, method="canny", threshold1=threshold1, threshold2=threshold2
+                )
                 st.success("Canny边缘检测已应用。")
-                # st.image(image_controller.get_current_image(), caption="Canny边缘检测后的图像", use_container_width=True)
 
         elif method == "Sobel":
+            ksize = st.sidebar.slider("核大小 (ksize)", 1, 31, 3, 2)
+            scale = st.sidebar.slider("尺度 (scale)", 1, 10, 1)
+            delta = st.sidebar.slider("偏移量 (delta)", 0, 100, 0)
             if st.sidebar.button("应用Sobel边缘检测"):
-                image_controller.apply_operation(edge_detection, method="sobel")
+                image_controller.apply_operation(
+                    edge_detection, method="sobel", ksize=ksize, scale=scale, delta=delta
+                )
                 st.success("Sobel边缘检测已应用。")
-                # st.image(image_controller.get_current_image(), caption="Sobel边缘检测后的图像", use_container_width=True)
 
         elif method == "Laplacian":
+            ksize = st.sidebar.slider("核大小 (ksize)", 1, 31, 3, 2)
+            scale = st.sidebar.slider("尺度 (scale)", 1, 10, 1)
+            delta = st.sidebar.slider("偏移量 (delta)", 0, 100, 0)
             if st.sidebar.button("应用Laplacian边缘检测"):
-                image_controller.apply_operation(edge_detection, method="laplacian")
+                image_controller.apply_operation(
+                    edge_detection, method="laplacian", ksize=ksize, scale=scale, delta=delta
+                )
                 st.success("Laplacian边缘检测已应用。")
-                # st.image(image_controller.get_current_image(), caption="Laplacian边缘检测后的图像", use_container_width=True)
+
 
 def background_removal_control(image_controller):
     """控制背景去除的界面。"""
     if st.sidebar.checkbox("背景去除"):
-        if image_controller.get_current_image() is not None:
-            if st.sidebar.button("应用背景去除"):
-                st.info("请等待，正在进行背景去除...")
-                image_controller.apply_operation(remove_background)
+        method = st.sidebar.selectbox("选择背景去除方法", ["颜色阈值", "深度学习模型"])
+
+        if method == "颜色阈值":
+            lower_hue = st.sidebar.slider("低色调 (Hue)", 0, 180, 0)
+            upper_hue = st.sidebar.slider("高色调 (Hue)", 0, 180, 180)
+            if st.sidebar.button("去除背景"):
+                image_controller.apply_operation(
+                    remove_background, method="color_threshold", lower_hue=lower_hue, upper_hue=upper_hue
+                )
                 st.success("背景已去除。")
-                # st.image(image_controller.get_current_image(), caption="去除背景后的图像", use_container_width=True)
-        else:
-            st.sidebar.warning("请先上传并选择一张图像。")
+
+        elif method == "深度学习模型":
+            if st.sidebar.button("去除背景"):
+                st.info("请等待，正在进行背景去除...")
+                image_controller.apply_operation(remove_background, method="deep_learning")
+                st.success("背景已去除。")
+
 def watermark_compress_control(image_controller):
     """控制水印添加和图像压缩的界面。"""
     # st.sidebar.subheader("水印与压缩")
@@ -95,7 +113,7 @@ def watermark_compress_control(image_controller):
     if st.sidebar.checkbox("图像压缩"):
         st.sidebar.markdown("**图像压缩参数**")
         quality = st.sidebar.slider("压缩质量", 0, 100, 50, 1)
-        format = st.sidebar.selectbox("选择保存格式", ["JPEG", "PNG", "BMP"])
+        format = st.sidebar.selectbox("选择保存格式", ["JPEG"])
 
         if st.sidebar.button("应用图像压缩"):
             # description = f"图像压缩: 格式={format}, 质量={quality}"

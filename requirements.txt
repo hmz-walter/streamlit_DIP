@@ -1,1 +1,1 @@
-streamlitstreamlit-image-coordinatesopencv-python-headlesspillownumpymatplotlibrembgonnxruntime
+streamlitstreamlit-image-coordinatesopencv-python-headlesspillownumpymatplotlibrembgonnxruntimePyWavelets

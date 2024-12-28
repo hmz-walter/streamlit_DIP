@@ -40,7 +40,7 @@ def add_watermark(image, watermark_text="Sample Watermark", position=(10, 10), f
         print(f"Error in add_watermark: {e}")
         return image
 
-def compress_image(image, quality=50, format="JPEG"):
+def compress_image(image, quality=50, format="JPG"):
     """按指定质量和格式压缩图像。
 
     参数:
@@ -62,62 +62,65 @@ def compress_image(image, quality=50, format="JPEG"):
         return image
 
 def edge_detection(image, method="canny", **kwargs):
-    """检测图像边缘。
-
-    参数:
-        image (PIL.Image): 输入的图像。
-        method (str): 边缘检测方法（"canny", "sobel", "laplacian"）。
-        **kwargs: 方法特定的参数。
-
-    返回:
-        PIL.Image: 边缘检测后的图像。
-    """
+    """检测图像边缘。"""
     try:
         image_np = np.array(image.convert("RGB"))
+        gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
+
         if method == "canny":
             threshold1 = kwargs.get("threshold1", 100)
             threshold2 = kwargs.get("threshold2", 200)
-            gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
             edges = cv2.Canny(gray, threshold1, threshold2)
+
         elif method == "sobel":
-            gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
-            sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
-            sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
-            edges = cv2.magnitude(sobelx, sobely)
+            ksize = kwargs.get("ksize", 3)
+            scale = kwargs.get("scale", 1)
+            delta = kwargs.get("delta", 0)
+            sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=ksize, scale=scale, delta=delta)
+            sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=ksize, scale=scale, delta=delta)
+            edges = np.sqrt(sobelx**2 + sobely**2)
             edges = np.uint8(np.clip(edges, 0, 255))
+
         elif method == "laplacian":
-            gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
-            laplacian = cv2.Laplacian(gray, cv2.CV_64F)
+            ksize = kwargs.get("ksize", 3)
+            scale = kwargs.get("scale", 1)
+            delta = kwargs.get("delta", 0)
+            laplacian = cv2.Laplacian(gray, cv2.CV_64F, ksize=ksize, scale=scale, delta=delta)
             edges = np.uint8(np.clip(laplacian, 0, 255))
+
         else:
-            print(f"Unsupported edge detection method: {method}. Using Canny by default.")
-            gray = cv2.cvtColor(image_np, cv2.COLOR_RGB2GRAY)
-            edges = cv2.Canny(gray, 100, 200)
-        edges_pil = Image.fromarray(edges).convert("L")
-        return edges_pil
+            raise ValueError(f"Unsupported edge detection method: {method}")
+
+        return Image.fromarray(edges).convert("L")
     except Exception as e:
         print(f"Error in edge_detection: {e}")
         return image
 
-def remove_background(image):
-    """去除图像背景，仅保留主要对象。
 
-    参数:
-        image (PIL.Image): 输入的图像。
-
-    返回:
-        PIL.Image: 去除背景后的图像。
-    """
+def remove_background(image, method="color_threshold", **kwargs):
+    """去除图像背景。"""
     try:
         image_np = np.array(image)
-        output_np = remove(image_np)
-        return Image.fromarray(output_np)
-    except ImportError:
-        print("rembg library is not installed. Please install it using 'pip install rembg'.")
-        return image
+
+        if method == "color_threshold":
+            lower_hue = kwargs.get("lower_hue", 0)
+            upper_hue = kwargs.get("upper_hue", 180)
+            hsv = cv2.cvtColor(image_np, cv2.COLOR_RGB2HSV)
+            mask = cv2.inRange(hsv, (lower_hue, 50, 50), (upper_hue, 255, 255))
+            output = cv2.bitwise_and(image_np, image_np, mask=~mask)
+
+        elif method == "deep_learning":
+            from rembg import remove
+            output = remove(image_np)
+
+        else:
+            raise ValueError(f"Unsupported background removal method: {method}")
+
+        return Image.fromarray(output)
     except Exception as e:
         print(f"Error in remove_background: {e}")
         return image
+
 
 def object_detection(image, cascade_path="haarcascade_frontalface_default.xml", scaleFactor=1.1, minNeighbors=4):
     """检测图像中的对象（如人脸），并在检测到的对象周围绘制矩形框。

@@ -58,20 +58,3 @@ def histogram_operations_control(image_controller):
                     st.error("均衡化后的直方图计算失败。")
             else:
                 st.error("直方图均衡化失败。")
-
-    # 显示当前图像的直方图（可选）
-    # 可以选择始终显示当前图像的直方图，或者提供一个复选框来控制是否显示
-    # if st.sidebar.checkbox("显示当前图像的直方图"):
-    #     hist = compute_histogram(current_image)
-    #     if hist:
-    #         st.subheader("当前图像的灰度直方图")
-    #         fig, ax = plt.subplots()
-    #         bin_edges = np.arange(256)
-    #         ax.bar(bin_edges, hist, width=1.0, color='gray')
-    #         ax.set_title('Histogram of Current Image')
-    #         ax.set_xlabel('Gray Level')
-    #         ax.set_ylabel('Frequency')
-    #         ax.set_xlim([0, 255])
-    #         st.pyplot(fig)
-    #     else:
-    #         st.error("当前图像的直方图计算失败。")

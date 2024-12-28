@@ -23,6 +23,10 @@ class ImageController:
             st.session_state.is_show_coordinates = False
         if 'points' not in st.session_state:
             st.session_state.points = None
+        # if 'transformed_image' not in st.session_state:
+        #     st.session_state.transformed_image = None
+        self.transformed_image = {}
+        self.transform_coeffs = {}
 
     def load_image(self, image: Image.Image):
         st.session_state.processed_image = image.copy()
@@ -40,8 +44,8 @@ class ImageController:
         if reset_history and self.get_original_image():
             self.reset_history()
         if st.session_state.processed_image:
-            self.save_state()
             st.session_state.processed_image = operation_func(st.session_state.processed_image, *args, **kwargs)
+            self.save_state()
             st.session_state.is_refresh = True
             return st.session_state.processed_image
         else:
@@ -125,8 +129,8 @@ class ImageController:
                     draw = ImageDraw.Draw(image_to_display_temp)
                     line_length = 10
                     line_color = "red"
-                    draw.line((x, y - line_length, x, y + line_length), fill=line_color, width=1)  # 垂直线
-                    draw.line((x - line_length, y, x + line_length, y), fill=line_color, width=1)  # 水平线
+                    draw.line((x, y - line_length, x, y + line_length), fill=line_color, width=2)  # 垂直线
+                    draw.line((x - line_length, y, x + line_length, y), fill=line_color, width=2)  # 水平线
 
                 # 显示图像并捕获鼠标点击位置
                 value = streamlit_image_coordinates(image_to_display_temp, key="interactive_image")
@@ -168,10 +172,10 @@ class ImageController:
                     st.info("请进行图像处理操作。")
 
     def undo(self):
-        if len(st.session_state.history) > 1:
+        if len(st.session_state.history) >= 1:
             last_state = st.session_state.history.pop()
-            st.session_state.redo_stack.append(last_state)
             st.session_state.processed_image = st.session_state.history[-1].copy()
+            st.session_state.redo_stack.append(last_state)
             st.session_state.is_refresh = True
             st.success("撤销成功。")
         else:
@@ -204,20 +208,37 @@ class ImageController:
             st.session_state.history = [self.get_original_image().copy()]
             st.session_state.redo_stack = []
 
-    def delete(self):
+    def delete_image(self):
         st.session_state.history = []
         st.session_state.redo_stack = []
         st.session_state.processed_image = None
         st.session_state.original_image = None
-        st.session_state.is_refresh = True
         st.session_state.is_show_coordinates = False
         st.session_state.points = None
+
+    def set_current_image(self, image):
+        st.session_state.processed_image = image
+        self.transformed_image = {}
+        self.transform_coeffs = {}
 
     def get_current_image(self) -> Image.Image:
         return st.session_state.processed_image
 
     def get_original_image(self) -> Image.Image:
         return st.session_state.original_image
+
+    def set_transformed_image(self, transform_type, image):
+        self.transformed_image[transform_type] = image
+
+    def get_transformed_image(self, transform_type):
+        return self.transformed_image.get(transform_type, None)
+
+    def set_transform_coeffs(self, transform_type, coeffs):
+        self.transform_coeffs[transform_type] = coeffs
+
+    def get_transform_coeffs(self, transform_type):
+        return self.transform_coeffs.get(transform_type, None)
+
 
 def history_control(image_controller):
     """显示撤销、重做、重置和下载按钮在图像下方。"""
