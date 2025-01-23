@@ -110,7 +110,6 @@ def remove_background(image, method="color_threshold", **kwargs):
             output = cv2.bitwise_and(image_np, image_np, mask=~mask)
 
         elif method == "deep_learning":
-            from rembg import remove
             output = remove(image_np)
 
         else:

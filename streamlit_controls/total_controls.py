@@ -23,10 +23,8 @@ class ImageController:
             st.session_state.is_show_coordinates = False
         if 'points' not in st.session_state:
             st.session_state.points = None
-        # if 'transformed_image' not in st.session_state:
-        #     st.session_state.transformed_image = None
-        self.transformed_image = {}
-        self.transform_coeffs = {}
+        if 'transform_coeffs' not in st.session_state:
+            st.session_state.transform_coeffs = {}
 
     def load_image(self, image: Image.Image):
         st.session_state.processed_image = image.copy()
@@ -199,6 +197,7 @@ class ImageController:
             st.session_state.is_refresh = True
             st.session_state.is_show_coordinates = False
             st.session_state.points = None
+            st.session_state.transform_coeffs = {}
             st.success("图像已重置。")
         else:
             st.warning("没有原始图像可重置。")
@@ -215,11 +214,7 @@ class ImageController:
         st.session_state.original_image = None
         st.session_state.is_show_coordinates = False
         st.session_state.points = None
-
-    def set_current_image(self, image):
-        st.session_state.processed_image = image
-        self.transformed_image = {}
-        self.transform_coeffs = {}
+        st.session_state.transform_coeffs = {}
 
     def get_current_image(self) -> Image.Image:
         return st.session_state.processed_image
@@ -227,17 +222,11 @@ class ImageController:
     def get_original_image(self) -> Image.Image:
         return st.session_state.original_image
 
-    def set_transformed_image(self, transform_type, image):
-        self.transformed_image[transform_type] = image
-
-    def get_transformed_image(self, transform_type):
-        return self.transformed_image.get(transform_type, None)
-
     def set_transform_coeffs(self, transform_type, coeffs):
-        self.transform_coeffs[transform_type] = coeffs
+        st.session_state.transform_coeffs[transform_type] = coeffs
 
     def get_transform_coeffs(self, transform_type):
-        return self.transform_coeffs.get(transform_type, None)
+        return st.session_state.transform_coeffs.get(transform_type, None)
 
 
 def history_control(image_controller):
