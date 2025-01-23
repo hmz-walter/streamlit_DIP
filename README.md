@@ -13,3 +13,4 @@ pip install -r requirements.txt
 python -m streamlit run main.py
 ```
 * 方式2：[streamlit在线部署](https://streamlit.io/)
+* 在线预览地址：[https://imagetoolsv.streamlit.app/](https://imagetoolsv.streamlit.app/)
