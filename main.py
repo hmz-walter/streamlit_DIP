@@ -8,8 +8,6 @@ import os
 import tempfile
 import shutil
 import requests
-from bs4 import BeautifulSoup
-import requests
 import tqdm
 import numpy as np
 import cv2
