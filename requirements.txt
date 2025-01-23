@@ -1,6 +1,6 @@
 streamlit
 streamlit-image-coordinates
-opencv-python-contrib-headless
+opencv-contrib-python-headless
 pillow
 numpy
 matplotlib
